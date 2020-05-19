@@ -526,6 +526,24 @@ void MMTFFormat::write(const Frame& frame) {
 }
 
 void MMTFFormat::add_residue_to_structure(const Frame& frame, const Residue& residue) {
+
+    if (frame.cell().shape() != UnitCell::INFINITE) {
+
+        if (mmtf::isDefaultValue(structure_.unitCell)) {
+            auto& cell = frame.cell();
+            structure_.unitCell.resize(6);
+            structure_.unitCell[0] = static_cast<float>(cell.a());
+            structure_.unitCell[1] = static_cast<float>(cell.b());
+            structure_.unitCell[2] = static_cast<float>(cell.c());
+            structure_.unitCell[3] = static_cast<float>(cell.alpha());
+            structure_.unitCell[4] = static_cast<float>(cell.beta());
+            structure_.unitCell[5] = static_cast<float>(cell.gamma());
+        } else if (!unitcellWarningShown_) {
+            unitcellWarningShown_ = true; // Only show this once
+            warning("MMTF Writer", "the MMTF format only allows one unit cell to be defined for all models");
+        }
+    }
+
     structure_.numGroups++;
     structure_.groupsPerChain.back() += 1;
 

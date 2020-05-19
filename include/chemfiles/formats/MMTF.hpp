@@ -101,6 +101,9 @@ private:
     //
     // This is only used when writing
     std::vector<int32_t> new_atom_indexes_;
+
+    /// Have we shown the unit cell warning already for writing to this structure
+    bool unitcellWarningShown_ = false;
 };
 
 template<> FormatInfo format_information<MMTFFormat>();
