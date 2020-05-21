@@ -347,18 +347,19 @@ TEST_CASE("Write files in PDB format") {
     "HETATM    1 A   AXXX X   4       1.000   2.000   3.000  1.00  0.00           A\n"
     "ATOM      2 B   Bfoo A   3       1.000   2.000   3.000  1.00  0.00           B\n"
     "ATOM      3 C    foo A   3       1.000   2.000   3.000  1.00  0.00           C\n"
-    "HETATM    4 D    bar C  -1B      1.000   2.000   3.000  1.00  0.00           D\n"
-    "HETATM    5 E    XXX X   5       4.000   5.000   6.000  1.00  0.00           E\n"
-    "HETATM    6 F    XXX X   6       4.000   5.000   6.000  1.00  0.00           F\n"
-    "HETATM    7 G    XXX X   7       4.000   5.000   6.000  1.00  0.00           G\n"
-    "CONECT    1    2    7\n"
-    "CONECT    2    1    7\n"
-    "CONECT    3    7\n"
-    "CONECT    4    7\n"
-    "CONECT    5    6    7\n"
-    "CONECT    6    5    7\n"
-    "CONECT    7    1    2    3    4\n"
-    "CONECT    7    5    6\n"
+    "TER       4      foo A   3 \n"
+    "HETATM    5 D    bar C  -1B      1.000   2.000   3.000  1.00  0.00           D\n"
+    "HETATM    6 E    XXX X   5       4.000   5.000   6.000  1.00  0.00           E\n"
+    "HETATM    7 F    baz X  -2       4.000   5.000   6.000  1.00  0.00           F\n"
+    "HETATM    8 G    XXX X   6       4.000   5.000   6.000  1.00  0.00           G\n"
+    "CONECT    1    2    8\n"
+    "CONECT    2    1    8\n"
+    "CONECT    3    8\n"
+    "CONECT    5    8\n"
+    "CONECT    6    7    8\n"
+    "CONECT    7    6    8\n"
+    "CONECT    8    1    2    3    5\n"
+    "CONECT    8    6    7\n"
     "ENDMDL\n"
     "END\n";
 
@@ -380,6 +381,7 @@ TEST_CASE("Write files in PDB format") {
     frame.add_bond(4, 5);
     frame.add_bond(0, 6);
     frame.add_bond(1, 6);
+    frame.add_bond(1, 2); // This bond will not be printed
     frame.add_bond(2, 6);
     frame.add_bond(3, 6);
     frame.add_bond(4, 6);
@@ -390,12 +392,17 @@ TEST_CASE("Write files in PDB format") {
     residue.add_atom(2);
     residue.set("chainid", "A");
     residue.set("is_standard_pdb", true);
+    residue.set("composition_type", "L-PEPTIDE LINKING");
     frame.add_residue(residue);
 
     residue = Residue("barbar"); // This will be truncated in output
     residue.add_atom(3);
     residue.set("chainid", "CB");
     residue.set("insertion_code", "BB");
+    frame.add_residue(residue);
+
+    residue = Residue("baz", -2);
+    residue.add_atom(5);
     frame.add_residue(residue);
 
     file.write(frame);
